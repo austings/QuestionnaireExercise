@@ -1,6 +1,7 @@
+
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
-
+const path = require('path');
 const app = express();
 const port = 3000;
 
@@ -13,49 +14,14 @@ const db = new sqlite3.Database('./data/mydatabase.db', (err) => {
   }
 });
 
+
 // Middleware
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
-// Create tables if they don't already exist
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS questionnaire_questionnaires (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      description TEXT
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS questionnaire_questions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      question_text TEXT NOT NULL,
-      type TEXT NOT NULL
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS questionnaire_junction (
-      questionnaire_id INTEGER,
-      question_id INTEGER,
-      priority INTEGER,
-      PRIMARY KEY (questionnaire_id, question_id),
-      FOREIGN KEY (questionnaire_id) REFERENCES questionnaire_questionnaires(id),
-      FOREIGN KEY (question_id) REFERENCES questionnaire_questions(id)
-    )
-  `);
-
-  db.run(`
-    CREATE TABLE IF NOT EXISTS questionnaire_answers (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL,
-      questionnaire_id INTEGER,
-      question_id INTEGER,
-      answer TEXT NOT NULL,
-      FOREIGN KEY (questionnaire_id) REFERENCES questionnaire_questionnaires(id),
-      FOREIGN KEY (question_id) REFERENCES questionnaire_questions(id)
-    )
-  `);
+// Route to serve the index.html file when the user visits the root URL
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Example route to get all questionnaires

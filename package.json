@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "bioverse",
   "main": "index.js",
-  "start": "node public/index.js",
+  "start": "node server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

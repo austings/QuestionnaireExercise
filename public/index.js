@@ -5,7 +5,7 @@ const app = express();
 const port = 3000;
 
 // Set up SQLite database (it will be created as a file on disk)
-const db = new sqlite3.Database('./mydatabase.db', (err) => {
+const db = new sqlite3.Database('./data/mydatabase.db', (err) => {
   if (err) {
     console.error('Error opening database:', err);
   } else {

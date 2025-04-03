@@ -1,3 +1,4 @@
 node_modules/
 package-lock.json
-data/mydatabase.db
+
+server/data/mydatabase.db

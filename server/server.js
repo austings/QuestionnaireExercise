@@ -3,6 +3,8 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const app = express();
+app.use("/data", express.static("data")); // Exposes CSV
+
 const port = 3000;
 
 // Set up SQLite database (it will be created as a file on disk)

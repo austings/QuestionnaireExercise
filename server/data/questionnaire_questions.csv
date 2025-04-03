@@ -1,0 +1,48 @@
+id,question
+1,"{
+  ""type"": ""mcq"",
+  ""options"": [
+  ""Improve blood pressure"",
+  ""Reduce risk of future cardiac events"",
+  ""Support lifestyle changes"",
+  ""Longevity benefits""
+  ],
+  ""question"": ""Why are you interested in this product? Select all that apply.""
+ }"
+2,"{
+  ""type"": ""input"",
+  ""question"": ""Tell us anything else you’d like your provider to know when prescribing your medication.""
+ }"
+3,"{
+  ""type"": ""input"",
+  ""question"": ""What is your current weight?""
+ }"
+4,"{
+  ""type"": ""mcq"",
+  ""options"": [
+  ""Keto or low carb"",
+  ""Plant-based"",
+  ""Macro or calorie counting"",
+  ""Weight Watchers"",
+  ""Noom"",
+  ""Calibrate"",
+  ""Found"",
+  ""Alpha"",
+  ""Push Health""
+  ],
+  ""question"": ""Which of the following have you tried in the past? Select all that apply.""
+ }"
+5,"{
+  ""type"": ""mcq"",
+  ""options"": [
+  ""Losing 1-15 pounds"",
+  ""Losing 16-50 pounds"",
+  ""Losing 51+ pounds"",
+  ""Not sure, I just need to lose weight""
+  ],
+  ""question"": ""What’s your weight loss goal?""
+ }"
+6,"{
+  ""type"": ""input"",
+  ""question"": ""Please list any new medications you are taking.""
+ }"

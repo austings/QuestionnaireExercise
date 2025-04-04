@@ -1,13 +1,15 @@
-
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const cors = require('cors'); // Import the CORS package
+
 const app = express();
-app.use("/data", express.static("data")); // Exposes CSV
+const port = 5000; // Backend port
 
-const port = 3000;
+// Enable CORS for all origins (you can restrict this later)
+app.use(cors());
 
-// Set up SQLite database (it will be created as a file on disk)
+// Set up SQLite database
 const db = new sqlite3.Database('./data/mydatabase.db', (err) => {
   if (err) {
     console.error('Error opening database:', err);
@@ -16,17 +18,11 @@ const db = new sqlite3.Database('./data/mydatabase.db', (err) => {
   }
 });
 
-
 // Middleware
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
+app.use(express.json()); // To parse JSON requests
+app.use("/data", express.static("data")); // Expose CSVs
 
-// Route to serve the index.html file when the user visits the root URL
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Example route to get all questionnaires
+// API Routes
 app.get('/questionnaires', (req, res) => {
   db.all('SELECT * FROM questionnaire_questionnaires', [], (err, rows) => {
     if (err) {
@@ -55,7 +51,7 @@ app.get('/questionnaire/:id', (req, res) => {
   });
 });
 
-// Example route to save answers
+// Route to save answers
 app.post('/submit-answers', (req, res) => {
   const { user_id, questionnaire_id, answers } = req.body;
 
@@ -72,5 +68,5 @@ app.post('/submit-answers', (req, res) => {
 
 // Start server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Backend is running on http://localhost:${port}`);
 });

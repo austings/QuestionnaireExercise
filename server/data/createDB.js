@@ -1,4 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
+const csv = require('csv-parser'); 
 
 // Create or open the database (it will create the file if it doesn't exist)
 const db = new sqlite3.Database('./mydatabase.db', (err) => {
@@ -8,58 +10,86 @@ const db = new sqlite3.Database('./mydatabase.db', (err) => {
     console.log('Connected to SQLite database');
   }
 });
+
 // Function to insert data from CSV into the database
 function loadCSVData() {
-  // Load data into questionnaire_questionnaires
-  fs.createReadStream('questionnaire_questionnaires.csv')
-    .pipe(csv())
-    .on('data', (row) => {
-      const { name, description } = row;
-      db.run(`
-        INSERT INTO questionnaire_questionnaires (name, description) VALUES (?, ?)
-      `, [name, description], (err) => {
-        if (err) {
-          console.error('Error inserting data into questionnaire_questionnaires:', err);
-        }
-      });
-    })
-    .on('end', () => {
-      console.log('CSV data loaded into questionnaire_questionnaires table');
-    });
+  // Clear the questionnaire_junction table before inserting new data
+  db.run('DELETE FROM questionnaire_junction', (err) => {
+    if (err) {
+      console.error('Error clearing the questionnaire_junction table:', err);
+    } else {
+      console.log('questionnaire_junction table cleared, starting to load new data...');
+      
+      // Load data into questionnaire_junction
+      fs.createReadStream('questionnaire_junction.csv')
+        .pipe(csv())
+        .on('data', (row) => {
+          const { questionnaire_id, question_id, priority } = row;
+          db.run(`
+            INSERT INTO questionnaire_junction (questionnaire_id, question_id, priority) VALUES (?, ?, ?)
+          `, [questionnaire_id, question_id, priority], (err) => {
+            if (err) {
+              console.error('Error inserting data into questionnaire_junction:', err);
+            }
+          });
+        })
+        .on('end', () => {
+          console.log('CSV data loaded into questionnaire_junction table');
+        });
+    }
+  });
 
-  // Load data into questionnaire_questions
-  fs.createReadStream('questionnaire_questions.csv')
-    .pipe(csv())
-    .on('data', (row) => {
-      const { question_text, type } = row;
-      db.run(`
-        INSERT INTO questionnaire_questions (question_text, type) VALUES (?, ?)
-      `, [question_text, type], (err) => {
-        if (err) {
-          console.error('Error inserting data into questionnaire_questions:', err);
-        }
-      });
-    })
-    .on('end', () => {
-      console.log('CSV data loaded into questionnaire_questions table');
-    });
+  // Clear the questionnaire_questions table before inserting new data
+  db.run('DELETE FROM questionnaire_questions', (err) => {
+    if (err) {
+      console.error('Error clearing the questionnaire_questions table:', err);
+    } else {
+      console.log('questionnaire_questions table cleared, starting to load new data...');
+      
+      // Load data into questionnaire_questions
+      fs.createReadStream('questionnaire_questions.csv')
+        .pipe(csv())
+        .on('data', (row) => {
+          const { question_text, type } = row;
+          db.run(`
+            INSERT INTO questionnaire_questions (question_text, type) VALUES (?, ?)
+          `, [question_text, type], (err) => {
+            if (err) {
+              console.error('Error inserting data into questionnaire_questions:', err);
+            }
+          });
+        })
+        .on('end', () => {
+          console.log('CSV data loaded into questionnaire_questions table');
+        });
+    }
+  });
 
-  // Load data into questionnaire_junction (assuming this CSV has questionnaire_id, question_id, and priority)
-  fs.createReadStream('questionnaire_junction.csv')
-    .pipe(csv())
-    .on('data', (row) => {
-      const { questionnaire_id, question_id, priority } = row;
-      db.run(`
-        INSERT INTO questionnaire_junction (id, questionnaire_id, question_id, priority) VALUES (?, ?, ?, ?)
-      `, [questionnaire_id, question_id, priority], (err) => {
-        if (err) {
-          console.error('Error inserting data into questionnaire_junction:', err);
-        }
-      });
-    })
-    .on('end', () => {
-      console.log('CSV data loaded into questionnaire_junction table');
-    });
+  // Clear the questionnaire_questionnaires table before inserting new data
+  db.run('DELETE FROM questionnaire_questionnaires', (err) => {
+    if (err) {
+      console.error('Error clearing the questionnaire_questionnaires table:', err);
+    } else {
+      console.log('questionnaire_questionnaires table cleared, starting to load new data...');
+      
+      // Load data into questionnaire_questionnaires
+      fs.createReadStream('questionnaire_questionnaires.csv')
+        .pipe(csv())
+        .on('data', (row) => {
+          const { name, description } = row;
+          db.run(`
+            INSERT INTO questionnaire_questionnaires (name) VALUES (?)
+          `, [name, description], (err) => {
+            if (err) {
+              console.error('Error inserting data into questionnaire_questionnaires:', err);
+            }
+          });
+        })
+        .on('end', () => {
+          console.log('CSV data loaded into questionnaire_questionnaires table');
+        });
+    }
+  });
 
 }
 
@@ -70,8 +100,7 @@ db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS questionnaire_questionnaires (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      description TEXT
+      name TEXT NOT NULL
     )
   `);
 
@@ -108,6 +137,7 @@ db.serialize(() => {
       FOREIGN KEY (question_id) REFERENCES questionnaire_questions(id)
     )
   `);
+  loadCSVData();
 });
 
 // Close the database connection
@@ -118,3 +148,5 @@ db.close((err) => {
     console.log('Database created and tables initialized successfully!');
   }
 });
+
+

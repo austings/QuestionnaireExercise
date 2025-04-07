@@ -1,6 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 const csv = require('csv-parser'); 
+const bcrypt = require('bcryptjs');
 
 // Create or open the database (it will create the file if it doesn't exist)
 const db = new sqlite3.Database('./mydatabase.db', (err) => {
@@ -10,6 +11,47 @@ const db = new sqlite3.Database('./mydatabase.db', (err) => {
     console.log('Connected to SQLite database');
   }
 });
+
+// Function to insert an admin user
+async function insertAdminAndClose() {
+  const adminPassword = 'password';  // Replace with the actual admin password
+  const hashedPassword = await bcrypt.hash(adminPassword, 10);  // Hash the password
+
+  const username = 'admin';
+  const isAdmin = 1;  // Mark as admin
+
+  // Clear the users table
+  db.run('DELETE FROM users', function(err) {
+    if (err) {
+      console.error('Error clearing users table:', err.message);
+      return;
+    }
+    
+    console.log('Users table cleared.');
+
+    // SQL query to insert admin user
+    const sql = `INSERT INTO users (username, password, admin) VALUES (?, ?, ?)`;
+
+    db.run(sql, [username, hashedPassword, isAdmin], function(err) {
+      if (err) {
+        console.error('Error inserting admin:', err.message);
+      } else {
+        console.log('Admin user inserted with ID:', this.lastID);
+      }
+    }).on('end', () => {
+      console.log('CSV data loaded into questionnaire_questionnaires table');
+    
+      db.close((err) => {
+        if (err) {
+          console.error('Error closing database:', err);
+        } else {
+          console.log('Database created and tables initialized successfully!');
+        }
+      });
+    });
+
+  });
+}
 
 // Function to insert data from CSV into the database
 function loadCSVData() {
@@ -50,10 +92,10 @@ function loadCSVData() {
       fs.createReadStream('questionnaire_questions.csv')
         .pipe(csv())
         .on('data', (row) => {
-          const { question_text, type } = row;
+          const { question } = row;
           db.run(`
-            INSERT INTO questionnaire_questions (question_text, type) VALUES (?, ?)
-          `, [question_text, type], (err) => {
+            INSERT INTO questionnaire_questions ( question) VALUES ( ?)
+          `, [question], (err) => {
             if (err) {
               console.error('Error inserting data into questionnaire_questions:', err);
             }
@@ -94,8 +136,13 @@ function loadCSVData() {
 }
 
 
-// Create tables
+// Empty and Create tables
 db.serialize(() => {
+  db.run(`DROP TABLE IF EXISTS users`);
+  db.run(`DROP TABLE IF EXISTS questionnaire_questionnaires`);
+  db.run(`DROP TABLE IF EXISTS questionnaire_questions`);
+  db.run(`DROP TABLE IF EXISTS questionnaire_junction`);
+  db.run(`DROP TABLE IF EXISTS questionnaire_answers`);
   // Create questionnaire_questionnaires table
   db.run(`
     CREATE TABLE IF NOT EXISTS questionnaire_questionnaires (
@@ -103,13 +150,19 @@ db.serialize(() => {
       name TEXT NOT NULL
     )
   `);
-
+  db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      admin INTEGER DEFAULT 0
+    );
+  `);
   // Create questionnaire_questions table
   db.run(`
     CREATE TABLE IF NOT EXISTS questionnaire_questions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      question_text TEXT NOT NULL,
-      type TEXT NOT NULL
+      question TEXT NOT NULL
     )
   `);
 
@@ -138,15 +191,9 @@ db.serialize(() => {
     )
   `);
   loadCSVData();
+  insertAdminAndClose();
 });
 
-// Close the database connection
-db.close((err) => {
-  if (err) {
-    console.error('Error closing database:', err);
-  } else {
-    console.log('Database created and tables initialized successfully!');
-  }
-});
+
 
 

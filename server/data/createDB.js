@@ -12,13 +12,18 @@ const db = new sqlite3.Database('./mydatabase.db', (err) => {
   }
 });
 
-// Function to insert an admin user
+// Function to insert users and close db
 async function insertAdminAndClose() {
+  //hardcode usernames
   const adminPassword = 'password';  // Replace with the actual admin password
   const hashedPassword = await bcrypt.hash(adminPassword, 10);  // Hash the password
-
   const username = 'admin';
   const isAdmin = 1;  // Mark as admin
+
+  const userPassword = 'pass';  // Replace with the actual user password
+  const hashedUserPassword = await bcrypt.hash(userPassword, 10);  // Hash the password
+  const userUsername = 'user';
+  const userisAdmin = 0;  // Mark as user
 
   // Clear the users table
   db.run('DELETE FROM users', function(err) {
@@ -29,8 +34,17 @@ async function insertAdminAndClose() {
     
     console.log('Users table cleared.');
 
-    // SQL query to insert admin user
+
     const sql = `INSERT INTO users (username, password, admin) VALUES (?, ?, ?)`;
+
+    db.run(sql, [userUsername, hashedUserPassword, userisAdmin], function(err) {
+      if (err) {
+        console.error('Error inserting user:', err.message);
+      } else {
+        console.log('Average user inserted with ID:', this.lastID);
+      }
+    });
+
 
     db.run(sql, [username, hashedPassword, isAdmin], function(err) {
       if (err) {

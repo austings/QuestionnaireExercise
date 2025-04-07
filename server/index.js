@@ -25,6 +25,27 @@ const db = new sqlite3.Database('./data/mydatabase.db', (err) => {
 // Middleware
 app.use(express.json()); // To parse JSON requests
 app.use("/data", express.static("data")); // Expose CSVs
+// Middleware to check if the user is an admin
+function isAdmin(req, res, next) {
+  const token = req.headers['authorization']?.split(' ')[1]; // Bearer token
+  
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'No token provided.' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    if (decoded.admin !== 1) {
+      return res.status(403).json({ success: false, message: 'Access denied. Admins only.' });
+    }
+
+    req.user = decoded; // Attach user data to request for further use
+    next();
+  } catch (err) {
+    return res.status(401).json({ success: false, message: 'Invalid token.' });
+  }
+}
 
 // API Routes
 // Login route
@@ -56,7 +77,15 @@ app.post('/api/login', (req, res) => {
       }
 
       // Create a JWT token
-      const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign(
+        {
+          userId: user.id,
+          username: user.username,
+          admin: user.admin  // Include admin in the payload
+        },
+        JWT_SECRET,
+        { expiresIn: '1h' }
+      );
 
       return res.status(200).json({ success: true, token });
     });
@@ -104,6 +133,21 @@ app.post('/submit-answers', (req, res) => {
 
   stmt.finalize(() => {
     res.status(200).send('Answers submitted successfully');
+  });
+});
+
+// Route to get answers (only accessible by admins)
+app.post('/get-answers', isAdmin, (req, res) => {
+  db.all(`
+    SELECT a.id, a.user_id, a.questionnaire_id, a.question_id, a.answer, q.name AS question_name, qn.name AS questionnaire_name
+    FROM questionnaire_answers a
+    JOIN questionnaire_questions q ON a.question_id = q.id
+    JOIN questionnaire_questionnaires qn ON a.questionnaire_id = qn.id
+  `, (err, rows) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: 'Error fetching answers.' });
+    }
+    return res.status(200).json({ success: true, answers: rows });
   });
 });
 

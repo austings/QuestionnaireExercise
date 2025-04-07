@@ -42,3 +42,5 @@ cp -r client/build server/build
 //now run the server with 
 node index.js
 ```
+
+Note the only feature I believe is not implemented is autopopulating the fields.

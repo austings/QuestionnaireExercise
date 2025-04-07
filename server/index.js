@@ -13,6 +13,14 @@ const JWT_SECRET = '1234';
 // Enable CORS for all origins (you can restrict this later)
 app.use(cors());
 
+
+// Serve static files first
+app.use(express.static(path.join(__dirname, 'build')));
+
+// Serve static files under '/bioverse' base path
+app.use('/bioverse', express.static(path.join(__dirname, 'build')));
+
+
 // Set up SQLite database
 const db = new sqlite3.Database('./data/mydatabase.db', (err) => {
   if (err) {
@@ -150,7 +158,9 @@ app.get('/get-answers', (req, res) => {
 });
 
 
+
 // Start server
 app.listen(port, () => {
   console.log(`Backend is running on http://localhost:${port}`);
 });
+

@@ -5,4 +5,6 @@ client/build/
 server/build/
 package-lock.json
 .env
+server/.env
+client/.env
 server/data/mydatabase.db

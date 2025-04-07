@@ -22,7 +22,7 @@ function Dashboard() {
     }
 
     // Fetch questionnaires
-    fetch('http://localhost:5000/questionnaires')
+    fetch(`${process.env.REACT_APP_API_URL}/questionnaires`)
       .then((res) => res.json())
       .then((data) => setQuestionnaires(data))
       .catch((err) => console.error('Error fetching questionnaires:', err));

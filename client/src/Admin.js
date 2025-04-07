@@ -22,7 +22,7 @@ function Admin() {
       return navigate('/dashboard');
     }
 
-    fetch('http://localhost:5000/get-answers', {
+    fetch(`${process.env.REACT_APP_API_URL}/get-answers`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -93,12 +93,12 @@ function Admin() {
           {Object.keys(groupedAnswers).map(qId => (
             <React.Fragment key={qId}>
               {/* Questionnaire-level row */}
-              <tr 
-                style={{ background: '#ddd', cursor: 'pointer' }} 
+              <tr
+                style={{ background: '#ddd', cursor: 'pointer' }}
                 onClick={() => toggleQuestionnaire(qId)}
               >
                 <td>Questionnaire</td>
-                <td>{qId}</td>
+                <td>{groupedAnswers[qId][0]?.questionnaire_name || qId}</td>
                 <td colSpan="3">
                   {expandedQuestionnaires[qId] ? 'Collapse' : 'Expand'} to view users
                 </td>
@@ -106,8 +106,8 @@ function Admin() {
               {expandedQuestionnaires[qId] && Object.keys(groupedAnswers[qId]).map(uId => (
                 <React.Fragment key={uId}>
                   {/* User-level row */}
-                  <tr 
-                    style={{ background: '#eee', cursor: 'pointer' }} 
+                  <tr
+                    style={{ background: '#eee', cursor: 'pointer' }}
                     onClick={() => toggleUser(qId, uId)}
                   >
                     <td style={{ paddingLeft: '20px' }}>User</td>
@@ -120,17 +120,8 @@ function Admin() {
                     <tr key={answer.id}>
                       <td style={{ paddingLeft: '40px' }}>Answer</td>
                       <td>{answer.id}</td>
-                      <td>{answer.question_id}</td>
-                      <td>
-                        {(() => {
-                          try {
-                            const parsed = JSON.parse(answer.name);
-                            return parsed.question || answer.name;
-                          } catch (e) {
-                            return answer.name;
-                          }
-                        })()}
-                      </td>
+                      <td>{answer.questionnaire_name || answer.questionnaire_id}</td> {/* Display Questionnaire name */}
+                      <td>{answer.question_text || answer.question_id}</td> {/* Display Question name */}
                       <td>{answer.answer}</td>
                     </tr>
                   ))}
@@ -139,6 +130,7 @@ function Admin() {
             </React.Fragment>
           ))}
         </tbody>
+
       </table>
     </div>
   );

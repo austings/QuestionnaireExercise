@@ -146,9 +146,21 @@ app.post('/submit-answers', (req, res) => {
 
 app.get('/get-answers', (req, res) => {
   db.all(`
-   SELECT a.id, a.user_id, a.questionnaire_id, a.question_id, q.question AS name, a.answer
-   FROM questionnaire_answers a
-   LEFT JOIN questionnaire_questions q ON a.question_id = q.id
+  SELECT 
+    a.id, 
+    a.user_id, 
+    a.questionnaire_id, 
+    a.question_id, 
+    q.question AS name, 
+    a.answer,
+    qq.name AS questionnaire_name
+  FROM 
+    questionnaire_answers a
+  LEFT JOIN 
+    questionnaire_questionnaires qq ON a.questionnaire_id = qq.id
+  LEFT JOIN 
+    questionnaire_questions q ON a.question_id = q.id;
+
   `, (err, rows) => {
     if (err) {
       return res.status(500).json({ success: false, message: 'Error fetching answers.' });

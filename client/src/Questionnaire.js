@@ -90,7 +90,7 @@ function Questionnaire() {
     }
 
     // Submit if all questions are valid
-    const response = await fetch('http://localhost:5000/submit-answers', {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/submit-answers`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ function Questionnaire() {
   };
 
   useEffect(() => {
-    fetch(`http://localhost:5000/questionnaire/${id}`)
+    fetch(`${process.env.REACT_APP_API_URL}/questionnaire/${id}`)
       .then((res) => res.json())
       .then((data) => {
         const parsed = data.map(q => {

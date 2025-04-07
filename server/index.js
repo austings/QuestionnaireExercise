@@ -107,7 +107,7 @@ app.get('/questionnaires', (req, res) => {
 app.get('/questionnaire/:id', (req, res) => {
   const { id } = req.params;
   db.all(`
-    SELECT q.question
+    SELECT q.id, q.question
     FROM questionnaire_questions q
     JOIN questionnaire_junction jq ON q.id = jq.question_id
     WHERE jq.questionnaire_id = ?
@@ -136,13 +136,11 @@ app.post('/submit-answers', (req, res) => {
   });
 });
 
-// Route to get answers (only accessible by admins)
-app.post('/get-answers', isAdmin, (req, res) => {
+app.get('/get-answers', (req, res) => {
   db.all(`
-    SELECT a.id, a.user_id, a.questionnaire_id, a.question_id, a.answer, q.name AS question_name, qn.name AS questionnaire_name
-    FROM questionnaire_answers a
-    JOIN questionnaire_questions q ON a.question_id = q.id
-    JOIN questionnaire_questionnaires qn ON a.questionnaire_id = qn.id
+   SELECT a.id, a.user_id, a.questionnaire_id, a.question_id, q.question AS name, a.answer
+   FROM questionnaire_answers a
+   LEFT JOIN questionnaire_questions q ON a.question_id = q.id
   `, (err, rows) => {
     if (err) {
       return res.status(500).json({ success: false, message: 'Error fetching answers.' });
@@ -150,6 +148,7 @@ app.post('/get-answers', isAdmin, (req, res) => {
     return res.status(200).json({ success: true, answers: rows });
   });
 });
+
 
 // Start server
 app.listen(port, () => {

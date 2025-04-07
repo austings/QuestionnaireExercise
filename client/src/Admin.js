@@ -20,25 +20,29 @@ function Admin() {
     }
 
     fetch('http://localhost:5000/get-answers', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setAnswers(data.answers); // Set the answers to state
-        } else {
-          console.error('Failed to fetch answers:', data.message);
+        method: 'GET', // Change to GET for data retrieval
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       })
-      .catch((err) => console.error('Error fetching answers:', err));
-  }, [navigate]);
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setAnswers(data.answers); // Set the answers to state
+          } else {
+            console.error('Failed to fetch answers:', data.message);
+          }
+        })
+        .catch((err) => console.error('Error fetching answers:', err));
+    }, [navigate]);
 
   return (
+    
     <div>
+      <button type="button" onClick={() => navigate('/dashboard')}>
+        Back to Dashboard
+      </button>
       <h2>Admin Panel - Questionnaire Answers</h2>
       <table>
         <thead>
@@ -52,11 +56,21 @@ function Admin() {
         </thead>
         <tbody>
           {answers.map((answer) => (
+            
             <tr key={answer.id}>
               <td>{answer.id}</td>
               <td>{answer.user_id}</td>
-              <td>{answer.questionnaire_name}</td>
-              <td>{answer.question_name}</td>
+              <td>{answer.questionnaire_id}</td>
+              <td>
+                {(() => {
+                    try {
+                    const parsed = JSON.parse(answer.name);
+                    return parsed.question || answer.name;  // fetch question name from id
+                    } catch (e) {
+                    return answer.name; // fallback if not JSON
+                    }
+                })()}
+                </td>
               <td>{answer.answer}</td>
             </tr>
           ))}

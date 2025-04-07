@@ -27,8 +27,18 @@ node index.js
 ```
 
 3. Run the client by
+
 ```
 npm start
 ```
 
-4. To deploy to a production environment you made need to set environmental variables and change the endpoints if you are using a subdomain
+4. To deploy to a production environment you made need to set environmental variables and change the endpoints if you are using a subdomain.
+In the client folder make a build by running the command
+
+```
+npm run build
+//on linux, or just copy in file directory
+cp -r client/build server/build
+//now run the server with 
+node index.js
+```

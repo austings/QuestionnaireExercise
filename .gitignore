@@ -1,7 +1,8 @@
 node_modules/
 server/node_modules/
 client/node_modules/
-
+client/build/
+server/build/
 package-lock.json
 .env
 server/data/mydatabase.db

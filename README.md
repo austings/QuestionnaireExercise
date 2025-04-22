@@ -4,6 +4,41 @@ Node.js and React
 SQLite DB
 Deployed to LiteSpeed Server @ tsdm.software/bioverse
 
+
+## Description
+This is a demo questionnaire app to demonstrate my ability in full-stack development. The API is live at tsdm.software/bioverse
+
+User Interface (Front-End):
+### Login Page:
+● Function: Allows users to enter a username and password and navigate the user to the
+correct page accordingly.
+● Requirements: Once logged in as a user, navigate the user to the questionnaire
+selection page. Once logged in as an admin, navigate the user to the admin panel page.
+● Required Fields: Username, Password
+Questionnaire Selection Page
+● Function: Allow users to select which questionnaire they would like to complete
+● Requirements: Navigate the user the respective questionnaire when clicked on.
+### Questionnaire Page:
+● Function: Displays questions to users’ and stores the user’s input data into the
+database.
+● Requirements:
+o Each question is rendered logically such that the user is able to interact and
+provide an answer which will be reviewed by an administrator later.
+▪ Upon completion of an intake, navigate the user back to the
+questionnaire selection page.
+o Has input validation
+o Questions with *Select all that apply* must record all answers that the user
+selects.
+
+### Admin Panel:
+● Function: Enables administrators to view a different users’ answers organized
+● Features: A table of usernames and how many questionnaires they have completed.
+Administrators can click into the row and a modal opens displaying all the answered
+questionnaires for the user.
+● For displaying questions, shows the username, questionnaire name, then followed by the
+questions/answers in a “Q: ... A: ...” format.
+
+
 ### Dependencies
 use 
 ```
